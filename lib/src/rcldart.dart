@@ -18,7 +18,7 @@ final RclDartRclBindings rclBindings = RclDartRclBindings(dylibLoader("rcl"));
 class RclDart {
   static final RclDart _instance = RclDart._internal();
 
-  Context? _context;
+  Context? _defaultContext;
 
   factory RclDart() {
     return _instance;
@@ -30,7 +30,7 @@ class RclDart {
 
   /// initialize rcl
   init() {
-    if (_context != null) {
+    if (_defaultContext != null) {
       return;
     }
 
@@ -38,26 +38,27 @@ class RclDart {
 
     var initOptions = InitOptions();
 
-    _context = Context();
-    var initResult = rclBindings.rcl_init(
-        0, nullptr, initOptions.nativeInitOptions, getContext().nativeContext);
+    _defaultContext = Context();
+    var initResult = rclBindings.rcl_init(0, nullptr,
+        initOptions.nativeInitOptions, getDefaultContext().nativeContext);
     if (initResult != RCL_RET_OK) {
       throw Exception("unable to init rcl");
     }
     rclDartLogger.info("successfully initialize rcl");
   }
 
+  // createNode create new Node with defaultcontext
   Node createNode(String nodeName, String nameSpace) {
-    var node = Node("temporaryFlutterNode", "", getContext());
+    var node = Node("temporaryFlutterNode", "", getDefaultContext());
     rclDartLogger.info(
         "successfully created node. nodeName: $nodeName, nameSpace: $nameSpace");
     return node;
   }
 
-  Context getContext() {
-    if (_context == null) {
+  Context getDefaultContext() {
+    if (_defaultContext == null) {
       throw Exception("initialize rcldart before doing something!");
     }
-    return _context!;
+    return _defaultContext!;
   }
 }
